@@ -1,25 +1,39 @@
-import logo from './logo.svg';
-import './App.css';
+const express = require('express')
+const app = express()
+const mongose = require('mongoose')
+const PORT = process.env.PORT || 5000
+const {MONGOURI} = require('./config/keys')
+//import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+
+mongose.connect(MONGOURI, {
+  useNewUrlParser:true,
+  useUnifiedTopology:true
+})
+mongose.connection.on('connected', ()=> {
+  console.log("connected to mongo")
+})
+mongose.connection.on('error', (err) => {
+  console.log("error connecting")
+})
+
+require('./models/user')
+require('./models/post')
+
+app.use(express.json())
+app.use(require('./routes/auth'))
+app.use(require('./routes/post'))
+app.use(require('./routes/user'))
+
+if(process.env.NODE_ENV=="PRODUCTION") {
+  app.use(express.static('client/build'))
+  const path = require('path')
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(_dirname, 'client', 'build', 'index.html'))
+  })
 }
 
-export default App;
+app.listen(PORT,() => {
+  console.log("server is running on port", PORT)
+})
+

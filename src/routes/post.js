@@ -2,15 +2,15 @@ const express = require('express')
 const router = express.Router()
 const mongoose = ('mongoose')
 const requireLogin = require('../middleware/requireLogin')
-const { post } = require('./auth')
-const Post = mongoose.model('Post')
+//const { post } = require('./auth')
+const Post = mongoose.model("Post")
 
 router.get('/allpost', requireLogin,(req,res) => {
     Post.find()
     .populate("postedBy", "_id name")
     .populate("comments.postBy", "_id name")
     .sort('-createdAt')
-    .then((post) => {
+    .then((posts) => {
         res.json({posts})
     }).catch(err => {
         console.log(err)
@@ -41,7 +41,7 @@ router.post('/createPost', requireLogin, (req,res) => {
                 postedBy:req.user
             })
             post.save().then(result =>{
-                res.json({mypost})
+                res.json({post:result})
             })
             .catch(err => {
                 console.log(err)

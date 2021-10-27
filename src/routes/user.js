@@ -51,7 +51,7 @@ router.get('/user/id', requireLogin, (req,res) => {
             User.findByIdAndUpdate(req.user._id, {
                 $pull:{following:req.body.unfollowId}
             }, {new:true}).select("-password").then(result => {
-                res,json(result)
+                res.json(result)
             }).catch(err => {
                 return res.status(422).json({error:err})
             })
@@ -67,7 +67,7 @@ router.get('/user/id', requireLogin, (req,res) => {
             })
     })
     router.post('/search-users', (req, res) => {
-        let usePattern = new RegExp("^"+req.body.query)
+        let userPattern = new RegExp("^"+req.body.query)
         User.find({email:{$regex:userPattern}})
         .select("_id email")
         .then(user => {
